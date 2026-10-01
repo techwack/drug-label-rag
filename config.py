@@ -20,6 +20,19 @@ DRUGS = [
     "clopidogrel", "albuterol", "fluoxetine", "hydrochlorothiazide", "methotrexate",
 ]
 
+# Well-known brand names, so questions like "What does the Plavix label say?" find clopidogrel.
+BRANDS = {
+    "warfarin": ["coumadin", "jantoven"], "metformin": ["glucophage"],
+    "lisinopril": ["zestril", "prinivil"], "atorvastatin": ["lipitor"],
+    "amoxicillin": ["amoxil"], "ibuprofen": ["advil", "motrin"],
+    "acetaminophen": ["tylenol"], "sertraline": ["zoloft"], "omeprazole": ["prilosec"],
+    "amlodipine": ["norvasc"], "levothyroxine": ["synthroid", "levoxyl"],
+    "gabapentin": ["neurontin"], "simvastatin": ["zocor"], "losartan": ["cozaar"],
+    "clopidogrel": ["plavix"], "albuterol": ["ventolin", "proair"],
+    "fluoxetine": ["prozac"], "hydrochlorothiazide": ["microzide"],
+    "methotrexate": ["trexall", "otrexup"],
+}
+
 # openFDA field -> readable section title
 SECTIONS = {
     "boxed_warning": "Boxed Warning",
