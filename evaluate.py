@@ -15,6 +15,11 @@ def is_refusal(answer):
     return "can't answer" in answer.lower() or "cannot answer" in answer.lower()
 
 
+def matches(keyword, text):
+    """True if any '|'-separated alternative appears in text, matched literally (so "H+/K+" works)."""
+    return any(alt.lower() in text for alt in keyword.split("|"))
+
+
 def check(item, result):
     """Score one result. Keywords use '|' for acceptable alternatives."""
     if item.get("refuse"):
@@ -24,7 +29,7 @@ def check(item, result):
     alt = want.replace("Warnings and Precautions", "Warnings")
     hit = any(s in (want, alt) or s.startswith(want) for s in result["sources"])
     answer = result["answer"].lower()
-    correct = all(re.search(k.lower(), answer) for k in item["keywords"]) and not is_refusal(answer)
+    correct = all(matches(k, answer) for k in item["keywords"]) and not is_refusal(answer)
     return {"retrieval_hit": hit, "correct": correct, "cited": bool(re.search(r"\[\d+(?:\s*,\s*\d+)*\]", answer))}
 
 
