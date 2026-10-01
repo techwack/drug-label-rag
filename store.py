@@ -1,6 +1,7 @@
 """Chunking, the FAISS vector store, and drug-aware retrieval."""
 import json
 import re
+import time
 
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
@@ -39,8 +40,29 @@ def chunk_labels(labels):
     return docs
 
 
-def build_index(docs, embeddings=None):
-    store = FAISS.from_documents(docs, embeddings or get_embeddings())
+def _with_retry(fn, tries=3):
+    """Ollama's model runner can restart mid-run; wait and retry a batch instead of losing all progress."""
+    for attempt in range(tries):
+        try:
+            return fn()
+        except Exception as e:
+            if attempt == tries - 1:
+                raise
+            print(f"  retrying batch after error: {str(e)[:80]}")
+            time.sleep(5)
+
+
+def build_index(docs, embeddings=None, batch_size=64):
+    """Embed in small batches so one failed request doesn't lose the whole run."""
+    embeddings = embeddings or get_embeddings()
+    store = None
+    for start in range(0, len(docs), batch_size):
+        batch = docs[start:start + batch_size]
+        if store is None:
+            store = _with_retry(lambda: FAISS.from_documents(batch, embeddings))
+        else:
+            _with_retry(lambda: store.add_documents(batch))
+        print(f"  embedded {min(start + batch_size, len(docs))}/{len(docs)}")
     store.save_local(str(INDEX_DIR))
     return store
 
