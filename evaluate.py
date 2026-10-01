@@ -25,7 +25,7 @@ def check(item, result):
     hit = any(s in (want, alt) or s.startswith(want) for s in result["sources"])
     answer = result["answer"].lower()
     correct = all(re.search(k.lower(), answer) for k in item["keywords"]) and not is_refusal(answer)
-    return {"retrieval_hit": hit, "correct": correct, "cited": bool(re.search(r"\[\d+\]", answer))}
+    return {"retrieval_hit": hit, "correct": correct, "cited": bool(re.search(r"\[\d+(?:\s*,\s*\d+)*\]", answer))}
 
 
 def main(use_filter=True):
